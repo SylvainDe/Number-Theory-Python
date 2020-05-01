@@ -46,37 +46,34 @@ import math  # Use sqrt, floor
 import functools # Use reduce (Python 2.5+ and 3.x)
 
 def euler_criterion(a, p):
-    """p is odd prime, a is positive integer. Euler's Criterion will check if
+	"""p is odd prime, a is positive integer. Euler's Criterion will check if
 	a is a quadratic residue mod p. If yes, returns True. If a is a non-residue
 	mod p, then False"""
-    return pow(a, (p - 1) // 2, p) == 1
+	return pow(a, (p - 1) // 2, p) == 1
 
 def gcd(a,b):
 	"""gcd(a,b) returns the greatest common divisor of the integers a and b."""
 	a = abs(a); b = abs(b)
-	while (a > 0):
-		b = b % a
-		tmp=a; a=b; b=tmp
+	while a:
+		a, b = b % a, a
 	return b
 
 def xgcd(a,b):
 	"""xgcd(a,b) returns a tuple of form (g,x,y), where g is gcd(a,b) and
 	x,y satisfy the equation g = ax + by."""
 	a1=1; b1=0; a2=0; b2=1; aneg=1; bneg=1
-	if(a < 0):
+	if a < 0:
 		a = -a; aneg=-1
-	if(b < 0):
+	if b < 0:
 		b = -b; bneg=-1
-	while (1):
-		quot = -(a // b)
-		a = a % b
-		a1 = a1 + quot*a2; b1 = b1 + quot*b2
-		if(a == 0):
+	while True:
+		quot, a = divmod(a, b)
+		a1 -= quot*a2; b1 -= quot*b2
+		if a == 0:
 			return (b, a2*aneg, b2*bneg)
-		quot = -(b // a)
-		b = b % a;
-		a2 = a2 + quot*a1; b2 = b2 + quot*b1
-		if(b == 0):
+		quot, b = divmod(b, a)
+		a2 -= quot*a1; b2 -= quot*b1
+		if b == 0:
 			return (a, a1*aneg, b1*bneg)
 
 def power_mod(b,e,n):
@@ -96,7 +93,7 @@ def power_mod(b,e,n):
 
 def inverse_mod(a,n):
 	"""inverse_mod(b,n) - Compute 1/b mod n."""
-	(g,xa,xb) = xgcd(a,n)
+	g,xa,xb = xgcd(a,n)
 	if(g != 1): raise ValueError("***** Error *****: {0} has no inverse (mod {1}) as their gcd is {2}, not 1.".format(a,n,g))
 	return xa % n
 
@@ -116,7 +113,7 @@ def factor(n):
 	thecount = 1
 	for thefact in factors(n):
 		if thefact != currfact:
-			if currfact != None:
+			if currfact is not None:
 				factspow += [(currfact,thecount)]
 			currfact = thefact
 			thecount = 1
@@ -177,7 +174,7 @@ def TSRsqrtmod(a,grpord,p):
 	Here integers mod n must form a cyclic group of order grpord."""
 	# Rewrite group order as non2*(2^pow2)
 	ordpow2=0; non2=grpord
-	while(not ((non2&0x01)==1)):
+	while (non2&0x01)!=1:
 		ordpow2+=1; non2//=2
 	# Find 2-primitive g (i.e. non-QR)
 	for g in range(2,grpord-1):
@@ -209,7 +206,7 @@ def isprimeE(n,b):
 	while (r % 2 == 0): r //= 2
 	c = pow(b,r,n)
 	if (c == 1): return True
-	while (1):
+	while True:
 		if (c == 1): return False
 		if (c == n-1): return True
 		c = pow(c,2,n)
@@ -223,11 +220,11 @@ def factorone(n):
 
 def factors(n):
 	"""factors(n) - Return a sorted list of the prime factors of n. (Prior to ver 0.7 named factor(n))"""
-	if n<0: n=-n  # Only deal with positive integers
-	if (is_prime(n)):
+	n = abs(n)  # Only deal with positive integers
+	if ((n == 1) or (n == 0)): raise ValueError('Unable to factor \"{0}\"'.format(n))
+	if is_prime(n):
 		return [n]
 	fact = factorone(n)
-	if ((abs(n) == 1) or (n == 0)): raise ValueError('Unable to factor \"{0}\"'.format(n))
 	facts = factors(n//fact) + factors(fact)
 	facts.sort()
 	return facts
@@ -244,8 +241,8 @@ def factorPR(n):
 			fast = (fast*fast + additive) % n
 			fast = (fast*fast + additive) % n
 			g = gcd(fast-slow,n)
-			if (g != 1):
-				if (g == n):
+			if g != 1:
+				if g == n:
 					break
 				else:
 					return g
@@ -265,9 +262,9 @@ def invmod(b,n):
 	return inverse_mod(b,n)
 
 def eulerphi(n):
-    """eulerphi(n) - Compute Euler's Phi function of n - the number of integers strictly less than n which are coprime to n.
-    (Renamed euler_phi(n) in ver 0.7)"""
-    return euler_phi(n)
+	"""eulerphi(n) - Compute Euler's Phi function of n - the number of integers strictly less than n which are coprime to n.
+	(Renamed euler_phi(n) in ver 0.7)"""
+	return euler_phi(n)
 
 def carmichaellambda(n):
 	"""carmichaellambda(n) - Compute Carmichael's Lambda function
