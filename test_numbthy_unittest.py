@@ -55,6 +55,44 @@ class Test_numbthy(unittest.TestCase):
         for n,expected_factors in ((-15,((3, 1), (5, 1))),(1234561000,((2, 3), (5, 3), (211, 1), (5851, 1)))):
             self.assertEqual(numbthy.factor(n),expected_factors)
 
+    def test_properties_on_random_int(self):
+        # for n in range(2, 20):
+        for testnum in range(10):
+            n = random.randint(2,10**20)
+            self.assertEqual(numbthy.gcd(n, n), n, "gcd(%d,%d) should be %d" % (n, n, n))
+            is_prime = numbthy.is_prime(n)
+            phi = numbthy.euler_phi(n)
+            factor = numbthy.factor(n)
+            factors = numbthy.factors(n)
+
+            prod = 1
+            prev_p = None
+            for p, e in factor:
+               self.assertTrue(numbthy.is_prime(p), "Factors of %d should be prime: %d is not" % (n, p))
+               if prev_p is not None:
+                   self.assertGreater(p, prev_p, "Factors of %d are not stricly sorted: %s" % (n, factors))
+               prod *= p**e
+               prev_p = p
+            self.assertEqual(prod, n, "Product of factors should be equal to %d" % n)
+
+            prod = 1
+            prev_p = None
+            for p in factors:
+               self.assertTrue(numbthy.is_prime(p), "Factors of %d should be prime: %d is not" % (n, p))
+               if prev_p is not None:
+                   self.assertGreaterEqual(p, prev_p, "Factors of %d are not sorted: %s" % (n, factors))
+               prod *= p
+               prev_p = p
+            self.assertEqual(prod, n, "Product of factors should be equal to %d - bis" % n)
+
+            if is_prime:
+                self.assertEqual(factor, ((n, 1),), "Prime number %d should have no other factors" % n)
+                self.assertEqual(factors, [n])
+                self.assertEqual(phi, n-1)
+            else:
+                self.assertGreater(len(factors), 1)
+
+
 if __name__ == '__main__':
     unittest.main()
 
