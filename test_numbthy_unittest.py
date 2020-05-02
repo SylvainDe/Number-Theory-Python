@@ -24,11 +24,7 @@ class Test_numbthy(unittest.TestCase):
         for testnum in range(10):
             a = random.randint(0,10**20); b = random.randint(0,10**20)
             (g,x,y) = numbthy.xgcd(a,b)
-            try:
-                self.assertEqual(g,a*x+b*y)
-                break
-            except AssertionError:
-                raise AssertionError("***** Error in xgcd *****: {2} != ({0})*({3}) + ({1})*({4})".format(a,b,g,x,y))
+            self.assertEqual(g,a*x+b*y, "xgcd error: {2} != ({0})*({3}) + ({1})*({4})".format(a,b,g,x,y))
 
     def test_power_mod(self):
         for (b,e,n,expected_pow) in ((2,5,13,6),(2,-21,31,16),(-2,-21,31,15),(0,5,31,0),(5,0,31,1)):
